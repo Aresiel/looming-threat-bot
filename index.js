@@ -10,6 +10,8 @@ const perms = ["CREATE_INSTANT_INVITE", "KICK_MEMBERS", "BAN_MEMBERS", "MANAGE_C
     "USE_EXTERNAL_EMOJIS", "VIEW_GUILD_INSIGHTS", "CONNECT", "SPEAK", "MUTE_MEMBERS", "DEAFEN_MEMBERS", "MOVE_MEMBERS",
     "USE_VAD", "CHANGE_NICKNAME", "MANAGE_NICKNAMES", "MANAGE_ROLES", "MANAGE_WEBHOOKS", "MANAGE_EMOJIS"]
 
+let yiff_url = "https://imgur.com/HzisUIF"
+let cat_url = "https://imgur.com/HzisUIF"
 
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`);
@@ -22,9 +24,23 @@ client.on('ready', () => {
             }
         }
     }
-
     setInterval(check, 5*1000)
     check()
+
+    const update_yiff = () => {
+        fetch('https://e621.net/posts/random.json', { headers: { "User-Agent": "Aresiel/Looming-Threat"}})
+            .then(res => res.json())
+            .then(json => {
+                yiff_url = json.post.sample.url
+            })
+        fetch('https://some-random-api.ml/img/cat')
+            .then(res => res.json())
+            .then(json => {
+                cat_url = json.link
+            })
+    }
+    setInterval(update_yiff, 2*1000)
+    update_yiff()
 });
 
 client.on('guildCreate', async guild => {
@@ -40,17 +56,9 @@ client.on('message', async msg => {
     if(msg.content.startsWith("lt.yiffroulette")){
         if(msg.channel.nsfw){
             if(Math.random() < 0.05) {
-                fetch('https://e621.net/posts/random.json', { headers: { "User-Agent": "Aresiel/Looming-Threat"}})
-                    .then(res => res.json())
-                    .then(json => {
-                        msg.channel.send("Well, well, well. :bucket:", { files: [json.post.sample.url] })
-                    })
+                await msg.channel.send("Well, well, well. :bucket:", {files: [yiff_url]})
             } else {
-                fetch('https://some-random-api.ml/img/cat')
-                    .then(res => res.json())
-                    .then(json => {
-                        msg.channel.send("You got lucky, Meow! :cat:", { files: [json.link] })
-                    })
+                await msg.channel.send("You got lucky, Meow! :cat:", {files: [cat_url]})
             }
         } else {
             msg.channel.send("Please use me in a NSFW channel. ):", {
