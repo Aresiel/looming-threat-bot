@@ -1,6 +1,8 @@
 require('dotenv').config()
 
 const Discord = require('discord.js');
+const fetch = require('node-fetch')
+
 const client = new Discord.Client();
 const perms = ["CREATE_INSTANT_INVITE", "KICK_MEMBERS", "BAN_MEMBERS", "MANAGE_CHANNELS", "MANAGE_GUILD",
     "ADD_REACTIONS", "VIEW_AUDIT_LOG", "PRIORITY_SPEAKER", "STREAM", "VIEW_CHANNEL", "SEND_MESSAGES",
@@ -30,5 +32,32 @@ client.on('guildCreate', async guild => {
         await guild.leave()
     }
 });
+
+client.on('message', async msg => {
+    if(msg.channel.type !== "text" && msg.content.startsWith("lt."))
+        return msg.channel.send("This bot only supports ordinary guild text channels.")
+
+    if(msg.content.startsWith("lt.yiffroulette")){
+        if(msg.channel.nsfw){
+            if(Math.random() < 0.05) {
+                fetch('https://e621.net/posts/random.json', { headers: { "User-Agent": "Aresiel/Looming-Threat"}})
+                    .then(res => res.json())
+                    .then(json => {
+                        msg.channel.send("Well, well, well. :bucket:", { files: [json.post.sample.url] })
+                    })
+            } else {
+                fetch('https://some-random-api.ml/img/cat')
+                    .then(res => res.json())
+                    .then(json => {
+                        msg.channel.send("You got lucky, Meow! :cat:", { files: [json.link] })
+                    })
+            }
+        } else {
+            msg.channel.send("Please use me in a NSFW channel. ):", {
+                files: ["https://i.imgur.com/x1PqpPr.png"]
+            })
+        }
+    }
+})
 
 client.login(process.env.TOKEN);
